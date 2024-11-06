@@ -1,6 +1,6 @@
 "use client";
 import { ArrowDownUpIcon } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -49,7 +49,9 @@ const formSchema = z.object({
     .string()
     .trim()
     .min(1, { message: "O nome da transação é obrigatorio" }),
-  amount: z.number(),
+  amount: z
+    .number()
+    .positive({ message: "O valor da transação é obrigatorio" }),
   type: z.nativeEnum(TransactionType, {
     required_error: "O tipo da transação é obrigatorio",
   }),
@@ -66,16 +68,8 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>;
 
-async function onSubmit(data: FormSchema) {
-  try {
-    console.log(data);
-    await AddTrasaction(data);
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 export default function AddTrasactionBtn() {
+  const [dialogOpen, setDialogOpen] = useState(false);
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -88,8 +82,22 @@ export default function AddTrasactionBtn() {
     },
   });
 
+  async function onSubmit(data: FormSchema) {
+    try {
+      setDialogOpen(false);
+      await AddTrasaction(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
   return (
-    <Dialog onOpenChange={(open) => !open && form.reset()}>
+    <Dialog
+      open={dialogOpen}
+      onOpenChange={(open) => {
+        setDialogOpen(open);
+        if (!open) form.reset();
+      }}
+    >
       <DialogTrigger asChild>
         <Button className="rounded-full font-bold">
           Add Transaction <ArrowDownUpIcon />
