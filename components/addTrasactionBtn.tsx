@@ -42,16 +42,14 @@ import {
 } from "@/app/_constants/trasactions";
 import { DatePicker } from "./ui/datepicker";
 import { DialogClose } from "@radix-ui/react-dialog";
+import { AddTrasaction } from "@/app/_actions/action-trasaction";
 
 const formSchema = z.object({
   name: z
     .string()
     .trim()
     .min(1, { message: "O nome da transação é obrigatorio" }),
-  amount: z
-    .string()
-    .trim()
-    .min(1, { message: "O valor da transação é obrigatorio" }),
+  amount: z.number(),
   type: z.nativeEnum(TransactionType, {
     required_error: "O tipo da transação é obrigatorio",
   }),
@@ -68,8 +66,13 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>;
 
-async function onSubmit(values: FormSchema) {
-  console.log(values);
+async function onSubmit(data: FormSchema) {
+  try {
+    console.log(data);
+    await AddTrasaction(data);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export default function AddTrasactionBtn() {
@@ -77,7 +80,7 @@ export default function AddTrasactionBtn() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      amount: "",
+      amount: 0,
       type: TransactionType.DEPOSIT,
       category: TransactionCategory.OTHER,
       paymentMethod: TransactionPaymentMethod.OTHER,
@@ -124,7 +127,12 @@ export default function AddTrasactionBtn() {
                   <FormControl>
                     <MoneyInput
                       placeholder="Digite o valor da transação"
-                      {...field}
+                      value={field.value}
+                      onValueChange={({ floatValue }) => {
+                        field.onChange(floatValue);
+                      }}
+                      onBlur={field.onBlur}
+                      disabled={field.disabled}
                     />
                   </FormControl>
 
