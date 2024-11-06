@@ -1,9 +1,7 @@
-import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <Image src="/logo.png" alt="logo" width={200} height={200} priority />
-    </main>
+    <Button asChild variant="default" className="absolute bottom-5 right-5" />
   );
 }
