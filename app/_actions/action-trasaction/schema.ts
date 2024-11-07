@@ -5,7 +5,7 @@ import {
 } from "@prisma/client";
 import { z } from "zod";
 
-export const AddTrasactionSchema = z.object({
+export const UpsertTrasactionSchema = z.object({
   name: z.string().trim().min(1),
   amount: z.number().positive(),
   type: z.nativeEnum(TransactionType),
